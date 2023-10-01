@@ -1,15 +1,23 @@
-import fs from 'fs';
-import path from 'path';
 import { json } from '@sveltejs/kit';
 
-export async function GET(req) {
-  // Define the path to the thumbnails directory
-  const thumbsDir = path.resolve('static/images/thumbs');
-
-  // Read the directory for jpg files
-  const filenames = fs.readdirSync(thumbsDir).filter(file => file.endsWith('.jpg'));
-
-  // Return the list of filenames in a Response object
-  return json(filenames)
-
+// Assuming you don't need any slug transformation as in the StackOverflow post
+// because you just want the filenames
+function filenameFromPath(filePath) {
+  return filePath.split('/').pop();
 }
+
+export async function GET() {
+    // Use glob to dynamically import jpg files from the thumbs directory
+    const modules = import.meta.glob('/src/static/images/thumbs/*.{jpg,jpeg,png,gif,svg,avif}');
+
+    const filenamesPromises = [];
+
+    for (let [filePath, resolver] of Object.entries(modules)) {
+        const promise = resolver().then(() => filenameFromPath(filePath));
+        filenamesPromises.push(promise);
+    }
+
+    const filenames = await Promise.all(filenamesPromises);
+
+    return json(filenames)
+  }
