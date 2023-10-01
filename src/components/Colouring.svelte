@@ -28,6 +28,7 @@
   import { pastelColors } from '../paint-utils/pastelcolors';
   import UndoButton from './UndoButton.svelte';
   import ImageChooser from './ImageChooser.svelte';
+  import { selectedImage } from './store.js';
   
 
   let canvas;
@@ -35,6 +36,8 @@
   let color = [0, 255, 0];
   let history = [];
   let showImageChooser = false;
+
+  $selectedImage;
 
   function toggleImageChooser() {
     showImageChooser = !showImageChooser;
@@ -84,17 +87,18 @@
   }
 
   onMount(() => {
-    ctx = canvas.getContext('2d');
-    let image = new Image();
-    let imageSrc = '/images/swimming-guy.png';
+  ctx = canvas.getContext('2d');
+  let image = new Image();
+  selectedImage.subscribe(imageSrc => {
     image.src = imageSrc;
-    image.onload = () => {
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    };
-    image.onerror = () => {
-      console.error('Failed to load image');
-    };
   });
+  image.onload = () => {
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  };
+  image.onerror = () => {
+    console.error('Failed to load image');
+  };
+});
 </script>
   
   <style>

@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { selectedImage } from './store.js';
     
     let thumbnails = [];
     let currentPage = 1;
@@ -19,6 +20,10 @@
     
     function goPrevious() {
       if (currentPage > 1) currentPage--;
+    }
+
+    function selectImage(thumbnail) {
+      selectedImage.set(`/images/${thumbnail}`);
     }
   </script>
   
@@ -77,7 +82,7 @@
   <div class="image-chooser">
     <div class="thumbnails">
       {#each thumbnails.slice((currentPage - 1) * thumbnailsPerPage, currentPage * thumbnailsPerPage) as thumbnail}
-        <img src={`/images/thumbs/${thumbnail}`} alt="Thumbnail" class="thumbnail" />
+        <img src={`/images/thumbs/${thumbnail}`} alt="Thumbnail" class="thumbnail" on:click={() => selectImage(thumbnail)} />
       {/each}
     </div>
     <div class="pagination">
